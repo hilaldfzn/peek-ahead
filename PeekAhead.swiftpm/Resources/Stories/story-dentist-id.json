@@ -1,0 +1,32 @@
+{
+  "id": "dentist-id",
+  "title": "Pergi ke dokter gigi",
+  "language": "id-ID",
+  "review": "placeholder",
+  "pages": [
+    {
+      "id": "p1",
+      "sentence": "Hari ini aku pergi ke dokter gigi.",
+      "sometimesNote": null,
+      "scene": "waiting_room"
+    },
+    {
+      "id": "p2",
+      "sentence": "Aku menunggu di ruang tunggu. Aku boleh memegang mainan kesayanganku.",
+      "sometimesNote": "Kadang-kadang kita menunggu lama. Itu tidak apa-apa.",
+      "scene": "waiting_room"
+    },
+    {
+      "id": "p3",
+      "sentence": "Dokter gigi punya kursi besar yang bisa miring ke belakang.",
+      "sometimesNote": "Kadang-kadang warna kursinya berbeda. Itu tidak apa-apa.",
+      "scene": "big_chair"
+    },
+    {
+      "id": "p4",
+      "sentence": "Dokter gigi menghitung gigiku. Lalu aku boleh pulang.",
+      "sometimesNote": null,
+      "scene": "big_chair"
+    }
+  ]
+}
