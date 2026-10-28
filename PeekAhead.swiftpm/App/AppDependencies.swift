@@ -9,12 +9,18 @@ struct AppDependencies {
     let storyProvider: any StoryProviding
     let narrator: any Narrating
     let soundPlayer: any SoundPlaying
+    let progress: ProgressModel
 
     static func live() -> AppDependencies {
-        AppDependencies(
+        let progress = ProgressModel(store: JSONFileProgressStore(fileURL: AppPaths.progressFile))
+        if progress.startedFresh {
+            Log.app.notice("Saved progress could not be read; started fresh and kept the old file aside")
+        }
+        return AppDependencies(
             storyProvider: FileStoryProvider.bundled(),
-            narrator: SpeechNarrator(),
-            soundPlayer: AudioPreviewPlayer()
+            narrator: SpeechNarrator(speed: { progress.settings.narrationSpeed }),
+            soundPlayer: AudioPreviewPlayer(),
+            progress: progress
         )
     }
 }

@@ -6,15 +6,15 @@ import AVFoundation
 /// child taps Read, and it should be heard even when the device's silent switch is on.
 @MainActor
 final class SpeechNarrator: NSObject, Narrating {
-    /// 0.9× the system default (DESIGN.md): calmer, and easier to follow word by word.
-    private static let rateFactor: Float = 0.9
-
+    /// The grown-up's narration speed, read each time narration starts (0.9× the system rate by default).
+    private let speed: @MainActor () -> NarrationSpeed
     private let synthesizer = AVSpeechSynthesizer()
     private var continuation: AsyncStream<NarrationEvent>.Continuation?
     /// Kept alive while speaking, so a late callback from an older utterance can be told apart.
     private var currentUtterance: AVSpeechUtterance?
 
-    override init() {
+    init(speed: @escaping @MainActor () -> NarrationSpeed = { .calm }) {
+        self.speed = speed
         super.init()
         synthesizer.delegate = self
     }
@@ -26,7 +26,7 @@ final class SpeechNarrator: NSObject, Narrating {
         let (stream, continuation) = AsyncStream<NarrationEvent>.makeStream()
         let utterance = AVSpeechUtterance(string: text)
         utterance.voice = AVSpeechSynthesisVoice(language: language)
-        utterance.rate = AVSpeechUtteranceDefaultSpeechRate * Self.rateFactor
+        utterance.rate = AVSpeechUtteranceDefaultSpeechRate * speed().rateFactor
         utterance.preUtteranceDelay = 0.15
         if utterance.voice == nil {
             Log.narration.notice("No voice for \(language, privacy: .public); using the system default")

@@ -19,6 +19,22 @@ enum Fixtures {
         ]
     )
 
+    static let withPractice = Story(
+        id: "practice",
+        title: "A practice day",
+        language: "en-US",
+        review: .placeholder,
+        pages: [page("p1", "Today we go out.")],
+        practice: StoryPractice(
+            steps: [
+                PracticeStep(id: "a", label: "Go in the car", pictogram: .car),
+                PracticeStep(id: "b", label: "Wait", pictogram: .waiting),
+                PracticeStep(id: "c", label: "Go home", pictogram: .home),
+            ],
+            calmTools: [.headphones]
+        )
+    )
+
     /// Root of the repository, found from this file's location.
     static let repositoryRoot = URL(fileURLWithPath: #filePath)
         .deletingLastPathComponent()  // Support

@@ -52,6 +52,7 @@ struct StoryPlayerScreen: View {
                 .foregroundStyle(AppColor.ink)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .accessibilityAddTraits(.isHeader)
+            NeedCardButton()
             if model.isNarrating {
                 CircleIconButton(title: "Stop", systemImage: "stop.fill") { model.stopReading() }
             } else {

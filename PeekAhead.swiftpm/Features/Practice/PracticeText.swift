@@ -43,14 +43,18 @@ struct PracticeScaffold<Content: View, Buttons: View>: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpace.lg) {
-            VStack(alignment: .leading, spacing: AppSpace.xs) {
-                Text(title)
-                    .font(AppFont.title)
-                    .foregroundStyle(AppColor.ink)
-                    .accessibilityAddTraits(.isHeader)
-                instruction
-                    .font(AppFont.labelChild)
-                    .foregroundStyle(AppColor.inkMuted)
+            HStack(alignment: .top, spacing: AppSpace.md) {
+                VStack(alignment: .leading, spacing: AppSpace.xs) {
+                    Text(title)
+                        .font(AppFont.title)
+                        .foregroundStyle(AppColor.ink)
+                        .accessibilityAddTraits(.isHeader)
+                    instruction
+                        .font(AppFont.labelChild)
+                        .foregroundStyle(AppColor.inkMuted)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                NeedCardButton()
             }
             ScrollView {
                 content

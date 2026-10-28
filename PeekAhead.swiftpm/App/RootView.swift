@@ -1,15 +1,13 @@
 import SwiftUI
 
-/// Loads the story library and hosts the child's path: Home → story → practice → Home.
+/// Loads the story library and hosts the child's path: Home → story → practice → reward → feelings → Home.
 struct RootView: View {
     let dependencies: AppDependencies
 
     @State private var state: LoadState = .loading
     @State private var path: [AppRoute] = []
-    // Week 5 moves these into saved progress and grown-up settings.
-    @State private var chosenTools: Set<CalmTool> = []
-    private let soundsEnabled = true
-    private let volumeLimit = 1.0
+
+    private var progress: ProgressModel { dependencies.progress }
 
     private enum LoadState {
         case loading
@@ -37,9 +35,12 @@ struct RootView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(AppColor.paper)
         case .loaded(let stories):
-            HomeView(stories: stories) { story in
-                path.append(.story(story))
-            }
+            HomeView(
+                stories: stories,
+                progress: progress,
+                onOpen: { path = [.story($0)] },
+                onOpenRoom: { path = [.pipRoom] }
+            )
         case .failed:
             ContentUnavailableView(
                 "Stories could not be opened",
@@ -58,28 +59,44 @@ struct RootView: View {
                 story: story,
                 narrator: dependencies.narrator,
                 onHome: goHome,
-                onFinish: { finishedReading(story) }
+                onFinish: { advance(after: .story, story: story) }
             )
         case .practice(let story):
             if let practice = story.practice {
                 PracticeHubView(
                     practice: practice,
                     dependencies: dependencies,
-                    soundsEnabled: soundsEnabled,
-                    volumeLimit: volumeLimit,
-                    chosenTools: chosenTools,
-                    onToolsChosen: { chosenTools = $0 },
-                    onFinish: goHome
+                    soundsEnabled: progress.settings.soundsEnabled,
+                    volumeLimit: progress.settings.previewVolumeLimit,
+                    chosenTools: Set(progress.state.calmTools),
+                    onToolsChosen: { progress.setCalmTools($0) },
+                    onFinish: { advance(after: .practice, story: story) }
                 )
             }
+        case .reward(let story):
+            RewardChoiceView(
+                offer: progress.rewardOffer,
+                onPlace: { progress.place($0) },
+                onContinue: { advance(after: .reward, story: story) }
+            )
+        case .feelings(let story):
+            FeelingsCheckInView(
+                onAnswer: { progress.logFeeling($0, for: story) },
+                onDone: goHome
+            )
+        case .pipRoom:
+            PipRoomView(items: progress.state.roomItems, onHome: goHome)
         }
     }
 
-    private func finishedReading(_ story: Story) {
-        if story.practice?.activities.isEmpty == false {
-            path.append(.practice(story))
-        } else {
-            goHome()
+    /// Shows the next screen in place of the current one, so Back never returns to a finished step.
+    private func advance(after step: ChildJourney.Step, story: Story) {
+        let next = ChildJourney.step(after: step, story: story, rewardsLeft: !progress.rewardOffer.isEmpty)
+        switch next {
+        case .practice: path = [.practice(story)]
+        case .reward: path = [.reward(story)]
+        case .feelings: path = [.feelings(story)]
+        case .story, .home: goHome()
         }
     }
 
