@@ -83,9 +83,13 @@ struct StoryPlayerScreen: View {
 
     private var navigationButtons: some View {
         HStack(spacing: AppSpace.md) {
+            // Child mode never shows disabled controls (DESIGN.md). On the first page Back is hidden but keeps its
+            // space, so Next stays in the same place on every page.
             Button("Back") { model.goToPreviousPage() }
                 .buttonStyle(.childSecondary)
-                .disabled(!model.canGoBack)
+                .opacity(model.canGoBack ? 1 : 0)
+                .allowsHitTesting(model.canGoBack)
+                .accessibilityHidden(!model.canGoBack)
             if model.isLastPage {
                 Button("Finish") {
                     model.stopReading()

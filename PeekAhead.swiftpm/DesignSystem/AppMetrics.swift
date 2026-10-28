@@ -23,6 +23,6 @@ enum AppRadius {
 /// Control sizes for child mode: big, predictable targets.
 enum AppSize {
     static let childButtonHeight: CGFloat = 88
-    static let iconButton: CGFloat = 64
+    static let iconButton: CGFloat = 72
     static let border: CGFloat = 3
 }

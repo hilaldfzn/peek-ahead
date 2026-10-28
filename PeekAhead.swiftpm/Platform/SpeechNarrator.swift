@@ -6,8 +6,8 @@ import AVFoundation
 /// child taps Read, and it should be heard even when the device's silent switch is on.
 @MainActor
 final class SpeechNarrator: NSObject, Narrating {
-    /// Slightly slower than the system default: calmer, and easier to follow word by word.
-    private static let rateFactor: Float = 0.85
+    /// 0.9× the system default (DESIGN.md): calmer, and easier to follow word by word.
+    private static let rateFactor: Float = 0.9
 
     private let synthesizer = AVSpeechSynthesizer()
     private var continuation: AsyncStream<NarrationEvent>.Continuation?
