@@ -3,8 +3,8 @@ import SwiftUI
 /// Start a new story: pick the event, the language, and optionally describe it in your own words. The draft opens
 /// in the editor; nothing reaches the child until the grown-up saves it.
 struct NewStoryView: View {
-    let drafter: any StoryDrafting
-    let onDrafted: (Story) -> Void
+    let drafter: DraftingCoordinator
+    let onDrafted: (DraftOutcome) -> Void
 
     @State private var event: EventKind = .dentist
     @State private var language: StoryLanguage = .english
@@ -32,7 +32,7 @@ struct NewStoryView: View {
                 Text("In your own words (optional)")
             } footer: {
                 Text(
-                    "Drafts are written on this iPad. Nothing is sent anywhere. You check every page before a child sees it."
+                    "Drafts are written on this iPad with Apple Intelligence when it is available, and from a template otherwise. Nothing is sent anywhere. You check every page before a child sees it."
                 )
             }
             Section {
@@ -53,13 +53,10 @@ struct NewStoryView: View {
         isDrafting = true
         let request = DraftRequest(event: event, details: details, language: language)
         Task {
-            defer { isDrafting = false }
-            do {
-                onDrafted(try await drafter.draft(request))
-            } catch {
-                // The template drafter never fails; a coordinator falls back to it before reaching here.
-                Log.app.error("Drafting failed: \(String(describing: error), privacy: .public)")
-            }
+            // The coordinator never fails: it falls back to a template and says why.
+            let outcome = await drafter.outcome(for: request)
+            isDrafting = false
+            onDrafted(outcome)
         }
     }
 }

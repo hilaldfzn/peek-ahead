@@ -45,17 +45,27 @@ struct StoryPage: Identifiable, Hashable, Codable, Sendable {
     var scene: StoryScene
     /// What the sentence does. The rule checker uses it for the describing-to-directing ratio and the ending.
     var kind: PageKind
+    /// A grown-up's photo of the real place, shown instead of the scene. Stored on the device only.
+    var photoID: String?
 
-    init(id: String, sentence: String, sometimesNote: String?, scene: StoryScene, kind: PageKind = .describes) {
+    init(
+        id: String,
+        sentence: String,
+        sometimesNote: String?,
+        scene: StoryScene,
+        kind: PageKind = .describes,
+        photoID: String? = nil
+    ) {
         self.id = id
         self.sentence = sentence
         self.sometimesNote = sometimesNote
         self.scene = scene
         self.kind = kind
+        self.photoID = photoID
     }
 
     private enum CodingKeys: String, CodingKey {
-        case id, sentence, sometimesNote, scene, kind
+        case id, sentence, sometimesNote, scene, kind, photoID
     }
 
     init(from decoder: any Decoder) throws {
@@ -66,6 +76,7 @@ struct StoryPage: Identifiable, Hashable, Codable, Sendable {
         scene = try container.decode(StoryScene.self, forKey: .scene)
         // Older story files have no kind; treat their pages as describing.
         kind = try container.decodeIfPresent(PageKind.self, forKey: .kind) ?? .describes
+        photoID = try container.decodeIfPresent(String.self, forKey: .photoID)
     }
 }
 

@@ -65,12 +65,15 @@ struct GrownUpRootView: View {
                     story: story, dependencies: dependencies, bundled: bundled, isCopy: false, isUnsaved: false
                 )
             }
-        case .draft(let story):
-            StoryEditorView(story: story, dependencies: dependencies, bundled: bundled, isCopy: false, isUnsaved: true)
+        case .draft(let story, let fallbackReason):
+            StoryEditorView(
+                story: story, dependencies: dependencies, bundled: bundled, isCopy: false, isUnsaved: true,
+                fallbackReason: fallbackReason
+            )
         case .newStory:
-            NewStoryView(drafter: dependencies.drafter) { draft in
+            NewStoryView(drafter: dependencies.drafter) { outcome in
                 path.removeLast()
-                path.append(.draft(draft))
+                path.append(.draft(outcome.story, fallbackReason: outcome.fallbackReason))
             }
         case .planDay:
             PlanDayView(stories: progress.allStories(bundled: bundled), progress: progress)
@@ -84,7 +87,7 @@ struct GrownUpRootView: View {
 
 enum GrownUpRoute: Hashable {
     case edit(storyID: String)
-    case draft(Story)
+    case draft(Story, fallbackReason: DraftOutcome.FallbackReason?)
     case newStory
     case planDay
     case feelings

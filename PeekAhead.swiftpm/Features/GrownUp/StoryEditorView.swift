@@ -1,3 +1,4 @@
+import PhotosUI
 import SwiftUI
 
 /// The grown-up story editor: every page with its sentence, kind, scene and optional "Sometimes…" note, and the
@@ -9,6 +10,8 @@ struct StoryEditorView: View {
     let isCopy: Bool
     /// Set when the story is new (a draft or a copy) and has not been saved yet.
     let isUnsaved: Bool
+    /// Why a new draft came from a template instead of the on-device model, if it did.
+    let fallbackReason: DraftOutcome.FallbackReason?
 
     @State private var editor: StoryEditorModel
     @State private var saveError: StoryContentError?
@@ -17,12 +20,20 @@ struct StoryEditorView: View {
     @State private var confirmingDelete = false
     @Environment(\.dismiss) private var dismiss
 
-    init(story: Story, dependencies: AppDependencies, bundled: [Story], isCopy: Bool, isUnsaved: Bool) {
+    init(
+        story: Story,
+        dependencies: AppDependencies,
+        bundled: [Story],
+        isCopy: Bool,
+        isUnsaved: Bool,
+        fallbackReason: DraftOutcome.FallbackReason? = nil
+    ) {
         _editor = State(initialValue: StoryEditorModel(story: story))
         self.dependencies = dependencies
         self.bundled = bundled
         self.isCopy = isCopy
         self.isUnsaved = isUnsaved
+        self.fallbackReason = fallbackReason
     }
 
     private var progress: ProgressModel { dependencies.progress }
@@ -34,6 +45,11 @@ struct StoryEditorView: View {
                     .font(.title3.weight(.semibold))
                 if let source = editor.story.draftSource {
                     DraftBadge(source: source)
+                }
+                if let fallbackReason {
+                    Text(fallbackText(fallbackReason))
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
                 }
                 if isCopy {
                     Text("A copy of a built-in story. When you save, it becomes your own story.")
@@ -106,6 +122,7 @@ struct StoryEditorView: View {
         .confirmationDialog("Delete this story?", isPresented: $confirmingDelete, titleVisibility: .visible) {
             Button("Delete", role: .destructive) {
                 progress.deleteUserStory(id: editor.story.id)
+                PhotoStore.removeUnreferenced(keeping: progress.state.referencedPhotoIDs)
                 dismiss()
             }
         }
@@ -118,6 +135,15 @@ struct StoryEditorView: View {
             dismiss()
         } catch {
             saveError = error
+        }
+    }
+
+    private func fallbackText(_ reason: DraftOutcome.FallbackReason) -> LocalizedStringKey {
+        switch reason {
+        case .noModel, .modelUnavailable:
+            "Apple Intelligence is not available on this iPad right now, so this draft comes from a template."
+        case .modelFailed, .unusableDraft:
+            "The on-device draft could not be used, so this draft comes from a template."
         }
     }
 
@@ -173,9 +199,64 @@ private struct PageEditorRow: View {
             )
             .font(.subheadline)
 
+            PagePhotoControl(page: page, editor: editor)
+
             FlowChips(findings: findings)
         }
         .padding(.vertical, 6)
+    }
+}
+
+/// Add, change or remove a photo of the real place. Faces are blurred before the photo is saved.
+private struct PagePhotoControl: View {
+    let page: StoryPage
+    let editor: StoryEditorModel
+
+    @State private var item: PhotosPickerItem?
+    @State private var isPreparing = false
+
+    var body: some View {
+        HStack(spacing: 12) {
+            if let id = page.photoID, let image = PhotoStore.image(for: id) {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 64, height: 48)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .accessibilityLabel(Text("Photo of the real place"))
+                Button("Remove photo", role: .destructive) { editor.setPhoto(nil, page: page.id) }
+                    .buttonStyle(.borderless)
+            }
+            PhotosPicker(selection: $item, matching: .images) {
+                Label(page.photoID == nil ? "Add a photo of the real place" : "Change photo", systemImage: "photo")
+            }
+            .buttonStyle(.borderless)
+            if isPreparing {
+                ProgressView()
+            }
+        }
+        .font(.subheadline)
+        .onChange(of: item) {
+            Task { await usePickedPhoto() }
+        }
+    }
+
+    private func usePickedPhoto() async {
+        guard let item else { return }
+        isPreparing = true
+        defer {
+            isPreparing = false
+            self.item = nil
+        }
+        guard let data = try? await item.loadTransferable(type: Data.self), let image = UIImage(data: data) else {
+            return
+        }
+        do {
+            let id = try PhotoStore.save(FaceBlurrer.prepare(image))
+            editor.setPhoto(id, page: page.id)
+        } catch {
+            Log.app.error("Saving a photo failed: \(String(describing: error), privacy: .public)")
+        }
     }
 }
 

@@ -15,6 +15,11 @@ struct ProgressState: Codable, Equatable, Sendable {
 
     init() {}
 
+    /// Photos still used by a saved story. Any other photo file can be removed.
+    var referencedPhotoIDs: Set<String> {
+        Set(userStories.flatMap { $0.pages.compactMap(\.photoID) })
+    }
+
     private enum CodingKeys: String, CodingKey {
         case version, roomItems, feelings, calmTools, dayPlan, settings, userStories
     }

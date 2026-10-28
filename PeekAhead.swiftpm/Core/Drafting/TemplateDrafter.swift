@@ -74,6 +74,12 @@ enum Templates {
         var extras: [Extra] = []
     }
 
+    /// Keywords in either language: families often mix Indonesian and English when they describe the day.
+    enum Keywords {
+        static let loud = ["loud", "noisy", "crowd", "busy", "ramai", "berisik", "keras", "bising"]
+        static let fireworks = ["firework", "kembang api", "petasan"]
+    }
+
     static func template(for event: EventKind, language: StoryLanguage) -> Template {
         switch language {
         case .english: english(event)
@@ -89,7 +95,7 @@ enum Templates {
 
     private static func english(_ event: EventKind) -> Template {
         let loud = Extra(
-            keywords: ["loud", "noisy", "crowd", "busy"],
+            keywords: Keywords.loud,
             lines: [
                 Line(text: "Some places might be loud.", kind: .describes, scene: .waitingRoom),
                 Line(text: "I can wear my headphones.", kind: .iCan, scene: .waitingRoom),
@@ -97,7 +103,7 @@ enum Templates {
             calmTools: [.headphones]
         )
         let fireworks = Extra(
-            keywords: ["firework"],
+            keywords: Keywords.fireworks,
             lines: [
                 Line(text: "At night there might be fireworks.", kind: .describes, scene: .streetTrip),
                 Line(text: "Fireworks are loud and bright in the sky.", kind: .describes, scene: .streetTrip),
@@ -213,7 +219,7 @@ enum Templates {
 
     private static func indonesian(_ event: EventKind) -> Template {
         let loud = Extra(
-            keywords: ["ramai", "berisik", "keras", "bising"],
+            keywords: Keywords.loud,
             lines: [
                 Line(text: "Mungkin ada tempat yang bising.", kind: .describes, scene: .waitingRoom),
                 Line(text: "Aku boleh memakai headphone.", kind: .iCan, scene: .waitingRoom),
@@ -221,7 +227,7 @@ enum Templates {
             calmTools: [.headphones]
         )
         let fireworks = Extra(
-            keywords: ["kembang api", "petasan"],
+            keywords: Keywords.fireworks,
             lines: [
                 Line(text: "Malam hari mungkin ada kembang api.", kind: .describes, scene: .streetTrip),
                 Line(text: "Kembang api bunyinya keras dan cahayanya terang.", kind: .describes, scene: .streetTrip),

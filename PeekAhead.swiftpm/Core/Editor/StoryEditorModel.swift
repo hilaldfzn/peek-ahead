@@ -55,6 +55,11 @@ final class StoryEditorModel {
         changePage(pageID) { $0.scene = scene }
     }
 
+    /// Shows a grown-up's photo on the page instead of the scene, or removes it with `nil`.
+    func setPhoto(_ photoID: String?, page pageID: String) {
+        changePage(pageID) { $0.photoID = photoID }
+    }
+
     /// Adds an empty describing page after `pageID` (or at the end), reusing that page's scene.
     @discardableResult
     func addPage(after pageID: String? = nil) -> String {

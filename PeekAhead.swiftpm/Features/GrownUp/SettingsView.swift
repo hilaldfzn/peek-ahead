@@ -70,7 +70,10 @@ struct SettingsView: View {
         .confirmationDialog(
             "Delete all data?", isPresented: $confirmingDelete, titleVisibility: .visible
         ) {
-            Button("Delete everything", role: .destructive) { progress.deleteAllData() }
+            Button("Delete everything", role: .destructive) {
+                progress.deleteAllData()
+                PhotoStore.removeUnreferenced(keeping: [])
+            }
         } message: {
             Text("Pip\u{2019}s room, check-ins, your stories, today\u{2019}s plan and settings will be removed.")
         }

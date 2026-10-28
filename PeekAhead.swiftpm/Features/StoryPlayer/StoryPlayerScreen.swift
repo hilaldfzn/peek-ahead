@@ -20,7 +20,7 @@ struct StoryPlayerScreen: View {
             topBar
             ScrollView {
                 pageLayout {
-                    SceneBackdrop(scene: model.page.scene)
+                    SceneBackdrop(scene: model.page.scene, photoID: model.page.photoID)
                     textPanel
                 }
                 .padding(.horizontal, AppSpace.xl)
