@@ -24,6 +24,9 @@ enum AppColor {
     /// "Done" and "in place" checks; never the only signal (always with an icon or a word).
     static var leaf: Color { Color(hex: 0x2C6E47) }
     static var leafTint: Color { Color(hex: 0xE3F0E1) }
+    /// Grown-up mode only ("worth changing" chips). Never used in child mode.
+    static var coral: Color { Color(hex: 0xA8452F) }
+    static var coralTint: Color { Color(hex: 0xFBE3DA) }
 }
 
 extension Color {

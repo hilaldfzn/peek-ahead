@@ -5,15 +5,17 @@ import Foundation
 /// Stories are plain data. They are bundled as JSON (`Resources/Stories/story-*.json`) and checked by
 /// ``StoryValidator`` when they are loaded.
 struct Story: Identifiable, Hashable, Codable, Sendable {
-    let id: String
-    let title: String
+    var id: String
+    var title: String
     /// BCP 47 language tag used for narration, for example `en-US` or `id-ID`.
-    let language: String
+    var language: String
     /// Whether an expert (a child psychologist or an experienced special-education teacher) has approved the wording.
-    let review: ReviewStatus
-    let pages: [StoryPage]
+    var review: ReviewStatus
+    var pages: [StoryPage]
     /// Practice that follows the story. Optional: a story without it goes straight to the reward.
-    let practice: StoryPractice?
+    var practice: StoryPractice?
+    /// How a grown-up's story was first drafted, if it was. Drafts show a badge until the grown-up has checked them.
+    var draftSource: DraftSource?
 
     init(
         id: String,
@@ -21,7 +23,8 @@ struct Story: Identifiable, Hashable, Codable, Sendable {
         language: String,
         review: ReviewStatus,
         pages: [StoryPage],
-        practice: StoryPractice? = nil
+        practice: StoryPractice? = nil,
+        draftSource: DraftSource? = nil
     ) {
         self.id = id
         self.title = title
@@ -29,18 +32,19 @@ struct Story: Identifiable, Hashable, Codable, Sendable {
         self.review = review
         self.pages = pages
         self.practice = practice
+        self.draftSource = draftSource
     }
 }
 
 /// One page of a story: a single short sentence shown over one scene.
 struct StoryPage: Identifiable, Hashable, Codable, Sendable {
-    let id: String
-    let sentence: String
+    var id: String
+    var sentence: String
     /// An optional "Sometimes…" note that prepares the child for a change, for example a different chair colour.
-    let sometimesNote: String?
-    let scene: StoryScene
+    var sometimesNote: String?
+    var scene: StoryScene
     /// What the sentence does. The rule checker uses it for the describing-to-directing ratio and the ending.
-    let kind: PageKind
+    var kind: PageKind
 
     init(id: String, sentence: String, sometimesNote: String?, scene: StoryScene, kind: PageKind = .describes) {
         self.id = id
@@ -75,6 +79,14 @@ enum PageKind: String, Codable, Sendable, CaseIterable {
     case iCan = "i_can"
     /// Something good and true to finish on: "Then I go home."
     case endsWell = "ends_well"
+}
+
+/// Where a draft came from, for the "Draft written on this iPad" badge.
+enum DraftSource: String, Codable, Sendable {
+    /// Filled in from a built-in template.
+    case template
+    /// Written by the on-device language model (Foundation Models).
+    case onDeviceModel = "on_device_model"
 }
 
 /// Review state of a story's wording.

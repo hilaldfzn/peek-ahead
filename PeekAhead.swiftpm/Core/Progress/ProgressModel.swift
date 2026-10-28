@@ -60,6 +60,37 @@ final class ProgressModel {
         }
     }
 
+    func clearFeelings() {
+        mutate { $0.feelings.removeAll() }
+    }
+
+    // MARK: Grown-up stories
+
+    /// Bundled stories first, then the grown-up's own, newest last.
+    func allStories(bundled: [Story]) -> [Story] {
+        bundled + state.userStories
+    }
+
+    /// Adds or replaces a grown-up's story. It must pass the same structural checks as bundled stories, and its id
+    /// may not clash with a bundled one.
+    func saveUserStory(_ story: Story, bundled: [Story]) throws(StoryContentError) {
+        try StoryValidator.validate(story)
+        guard !bundled.contains(where: { $0.id == story.id }) else {
+            throw .duplicateStoryID(story.id)
+        }
+        mutate { state in
+            if let index = state.userStories.firstIndex(where: { $0.id == story.id }) {
+                state.userStories[index] = story
+            } else {
+                state.userStories.append(story)
+            }
+        }
+    }
+
+    func deleteUserStory(id: String) {
+        mutate { $0.userStories.removeAll { $0.id == id } }
+    }
+
     // MARK: Day plan and calm tools
 
     func setCalmTools(_ tools: Set<CalmTool>) {

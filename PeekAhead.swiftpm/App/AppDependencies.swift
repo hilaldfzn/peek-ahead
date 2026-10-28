@@ -10,6 +10,7 @@ struct AppDependencies {
     let narrator: any Narrating
     let soundPlayer: any SoundPlaying
     let progress: ProgressModel
+    let drafter: any StoryDrafting
 
     static func live() -> AppDependencies {
         let progress = ProgressModel(store: JSONFileProgressStore(fileURL: AppPaths.progressFile))
@@ -20,7 +21,8 @@ struct AppDependencies {
             storyProvider: FileStoryProvider.bundled(),
             narrator: SpeechNarrator(speed: { progress.settings.narrationSpeed }),
             soundPlayer: AudioPreviewPlayer(),
-            progress: progress
+            progress: progress,
+            drafter: TemplateDrafter()
         )
     }
 }

@@ -10,11 +10,13 @@ struct ProgressState: Codable, Equatable, Sendable {
     var calmTools: [CalmTool] = []
     var dayPlan: DayPlan?
     var settings = AppSettings()
+    /// Stories a grown-up made or copied on this device.
+    var userStories: [Story] = []
 
     init() {}
 
     private enum CodingKeys: String, CodingKey {
-        case version, roomItems, feelings, calmTools, dayPlan, settings
+        case version, roomItems, feelings, calmTools, dayPlan, settings, userStories
     }
 
     // Missing keys fall back to defaults, so a file written by an older version still loads.
@@ -26,6 +28,7 @@ struct ProgressState: Codable, Equatable, Sendable {
         calmTools = try container.decodeIfPresent([CalmTool].self, forKey: .calmTools) ?? []
         dayPlan = try container.decodeIfPresent(DayPlan.self, forKey: .dayPlan)
         settings = try container.decodeIfPresent(AppSettings.self, forKey: .settings) ?? AppSettings()
+        userStories = try container.decodeIfPresent([Story].self, forKey: .userStories) ?? []
     }
 }
 

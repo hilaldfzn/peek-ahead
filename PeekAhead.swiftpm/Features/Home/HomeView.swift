@@ -6,6 +6,7 @@ struct HomeView: View {
     let progress: ProgressModel
     let onOpen: (Story) -> Void
     let onOpenRoom: () -> Void
+    let onOpenGrownUpMode: () -> Void
 
     @Environment(\.horizontalSizeClass) private var sizeClass
     @Environment(\.dynamicTypeSize) private var typeSize
@@ -13,6 +14,10 @@ struct HomeView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: AppSpace.xl) {
+                HStack {
+                    Spacer()
+                    GrownUpGateButton(action: onOpenGrownUpMode)
+                }
                 header
                 if progress.state.dayPlan != nil || !progress.state.calmTools.isEmpty {
                     TodayStrip(

@@ -6,6 +6,7 @@ struct RootView: View {
 
     @State private var state: LoadState = .loading
     @State private var path: [AppRoute] = []
+    @State private var showsGrownUpMode = false
 
     private var progress: ProgressModel { dependencies.progress }
 
@@ -34,13 +35,17 @@ struct RootView: View {
             ProgressView()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(AppColor.paper)
-        case .loaded(let stories):
+        case .loaded(let bundled):
             HomeView(
-                stories: stories,
+                stories: progress.allStories(bundled: bundled),
                 progress: progress,
                 onOpen: { path = [.story($0)] },
-                onOpenRoom: { path = [.pipRoom] }
+                onOpenRoom: { path = [.pipRoom] },
+                onOpenGrownUpMode: { showsGrownUpMode = true }
             )
+            .fullScreenCover(isPresented: $showsGrownUpMode) {
+                GrownUpRootView(bundled: bundled, dependencies: dependencies) { showsGrownUpMode = false }
+            }
         case .failed:
             ContentUnavailableView(
                 "Stories could not be opened",
