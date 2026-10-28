@@ -1,0 +1,17 @@
+# macOS
+.DS_Store
+
+# Development package at the repository root (SwiftPM and Xcode state)
+/.build/
+/.swiftpm/
+
+# Xcode and Swift Playgrounds per-user state
+xcuserdata/
+DerivedData/
+*.xcuserstate
+
+# App Playground build output
+PeekAhead.swiftpm/.build/
+
+# Submission archives are built by scripts/check-submission-size.sh, never committed
+*.zip
