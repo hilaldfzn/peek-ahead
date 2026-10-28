@@ -21,6 +21,9 @@ enum AppColor {
     static var sunInk: Color { Color(hex: 0x7A5410) }
     static var sky: Color { Color(hex: 0x2A609E) }
     static var skyTint: Color { Color(hex: 0xDCEBF8) }
+    /// "Done" and "in place" checks; never the only signal (always with an icon or a word).
+    static var leaf: Color { Color(hex: 0x2C6E47) }
+    static var leafTint: Color { Color(hex: 0xE3F0E1) }
 }
 
 extension Color {

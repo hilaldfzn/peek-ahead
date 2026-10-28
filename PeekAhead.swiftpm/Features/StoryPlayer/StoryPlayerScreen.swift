@@ -3,13 +3,16 @@ import SwiftUI
 /// One story, page by page: the scene, the sentence read aloud on request, and Back / Next.
 struct StoryPlayerScreen: View {
     @State private var model: StoryPlayerModel
+    let onHome: () -> Void
+    let onFinish: () -> Void
 
-    @Environment(\.dismiss) private var dismiss
     @Environment(\.horizontalSizeClass) private var sizeClass
     @Environment(\.dynamicTypeSize) private var typeSize
 
-    init(story: Story, narrator: any Narrating) {
+    init(story: Story, narrator: any Narrating, onHome: @escaping () -> Void, onFinish: @escaping () -> Void) {
         _model = State(initialValue: StoryPlayerModel(story: story, narrator: narrator))
+        self.onHome = onHome
+        self.onFinish = onFinish
     }
 
     var body: some View {
@@ -42,7 +45,7 @@ struct StoryPlayerScreen: View {
         HStack(spacing: AppSpace.md) {
             CircleIconButton(title: "Home", systemImage: "house.fill") {
                 model.stopReading()
-                dismiss()
+                onHome()
             }
             Text(model.story.title)
                 .font(AppFont.labelChild)
@@ -93,7 +96,7 @@ struct StoryPlayerScreen: View {
             if model.isLastPage {
                 Button("Finish") {
                     model.stopReading()
-                    dismiss()
+                    onFinish()
                 }
                 .buttonStyle(.childPrimary)
             } else {

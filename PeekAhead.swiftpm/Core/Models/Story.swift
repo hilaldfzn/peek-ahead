@@ -12,6 +12,24 @@ struct Story: Identifiable, Hashable, Codable, Sendable {
     /// Whether an expert (a child psychologist or an experienced special-education teacher) has approved the wording.
     let review: ReviewStatus
     let pages: [StoryPage]
+    /// Practice that follows the story. Optional: a story without it goes straight to the reward.
+    let practice: StoryPractice?
+
+    init(
+        id: String,
+        title: String,
+        language: String,
+        review: ReviewStatus,
+        pages: [StoryPage],
+        practice: StoryPractice? = nil
+    ) {
+        self.id = id
+        self.title = title
+        self.language = language
+        self.review = review
+        self.pages = pages
+        self.practice = practice
+    }
 }
 
 /// One page of a story: a single short sentence shown over one scene.
@@ -21,6 +39,42 @@ struct StoryPage: Identifiable, Hashable, Codable, Sendable {
     /// An optional "Sometimes…" note that prepares the child for a change, for example a different chair colour.
     let sometimesNote: String?
     let scene: StoryScene
+    /// What the sentence does. The rule checker uses it for the describing-to-directing ratio and the ending.
+    let kind: PageKind
+
+    init(id: String, sentence: String, sometimesNote: String?, scene: StoryScene, kind: PageKind = .describes) {
+        self.id = id
+        self.sentence = sentence
+        self.sometimesNote = sometimesNote
+        self.scene = scene
+        self.kind = kind
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id, sentence, sometimesNote, scene, kind
+    }
+
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(String.self, forKey: .id)
+        sentence = try container.decode(String.self, forKey: .sentence)
+        sometimesNote = try container.decodeIfPresent(String.self, forKey: .sometimesNote)
+        scene = try container.decode(StoryScene.self, forKey: .scene)
+        // Older story files have no kind; treat their pages as describing.
+        kind = try container.decodeIfPresent(PageKind.self, forKey: .kind) ?? .describes
+    }
+}
+
+/// The job a sentence does in the story (DESIGN.md, story language rules).
+enum PageKind: String, Codable, Sendable, CaseIterable {
+    /// Says what happens or what is there: "The dentist has a big chair."
+    case describes
+    /// Names a feeling, without judging it: "Some children feel excited."
+    case feelings
+    /// Something the child can do: "I can hold my favourite toy."
+    case iCan = "i_can"
+    /// Something good and true to finish on: "Then I go home."
+    case endsWell = "ends_well"
 }
 
 /// Review state of a story's wording.
