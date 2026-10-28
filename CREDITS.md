@@ -1,6 +1,7 @@
 # Credits
 
-Everything not listed here (code and story text) is original to this project.
+Everything not listed here is original to this project: the code, the story text, the sound preview loops
+(synthesised from scratch, `Resources/Sounds`) and the pictograms (`Resources/Pictograms`).
 
 ## 3D models and renders (CC0 1.0, public domain)
 

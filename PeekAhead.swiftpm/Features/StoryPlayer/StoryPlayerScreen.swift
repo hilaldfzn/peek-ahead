@@ -3,13 +3,16 @@ import SwiftUI
 /// One story, page by page: the scene, the sentence read aloud on request, and Back / Next.
 struct StoryPlayerScreen: View {
     @State private var model: StoryPlayerModel
+    let onHome: () -> Void
+    let onFinish: () -> Void
 
-    @Environment(\.dismiss) private var dismiss
     @Environment(\.horizontalSizeClass) private var sizeClass
     @Environment(\.dynamicTypeSize) private var typeSize
 
-    init(story: Story, narrator: any Narrating) {
+    init(story: Story, narrator: any Narrating, onHome: @escaping () -> Void, onFinish: @escaping () -> Void) {
         _model = State(initialValue: StoryPlayerModel(story: story, narrator: narrator))
+        self.onHome = onHome
+        self.onFinish = onFinish
     }
 
     var body: some View {
@@ -17,7 +20,7 @@ struct StoryPlayerScreen: View {
             topBar
             ScrollView {
                 pageLayout {
-                    SceneBackdrop(scene: model.page.scene)
+                    SceneBackdrop(scene: model.page.scene, photoID: model.page.photoID)
                     textPanel
                 }
                 .padding(.horizontal, AppSpace.xl)
@@ -42,13 +45,14 @@ struct StoryPlayerScreen: View {
         HStack(spacing: AppSpace.md) {
             CircleIconButton(title: "Home", systemImage: "house.fill") {
                 model.stopReading()
-                dismiss()
+                onHome()
             }
             Text(model.story.title)
                 .font(AppFont.labelChild)
                 .foregroundStyle(AppColor.ink)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .accessibilityAddTraits(.isHeader)
+            NeedCardButton()
             if model.isNarrating {
                 CircleIconButton(title: "Stop", systemImage: "stop.fill") { model.stopReading() }
             } else {
@@ -83,13 +87,17 @@ struct StoryPlayerScreen: View {
 
     private var navigationButtons: some View {
         HStack(spacing: AppSpace.md) {
+            // Child mode never shows disabled controls (DESIGN.md). On the first page Back is hidden but keeps its
+            // space, so Next stays in the same place on every page.
             Button("Back") { model.goToPreviousPage() }
                 .buttonStyle(.childSecondary)
-                .disabled(!model.canGoBack)
+                .opacity(model.canGoBack ? 1 : 0)
+                .allowsHitTesting(model.canGoBack)
+                .accessibilityHidden(!model.canGoBack)
             if model.isLastPage {
                 Button("Finish") {
                     model.stopReading()
-                    dismiss()
+                    onFinish()
                 }
                 .buttonStyle(.childPrimary)
             } else {

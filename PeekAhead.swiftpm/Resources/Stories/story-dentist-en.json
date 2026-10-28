@@ -8,25 +8,42 @@
       "id": "p1",
       "sentence": "Today I am going to the dentist.",
       "sometimesNote": null,
-      "scene": "waiting_room"
+      "scene": "waiting_room",
+      "kind": "describes"
     },
     {
       "id": "p2",
       "sentence": "I wait in the waiting room. I can hold my favourite toy.",
       "sometimesNote": "Sometimes we wait a long time. That is okay.",
-      "scene": "waiting_room"
+      "scene": "waiting_room",
+      "kind": "i_can"
     },
     {
       "id": "p3",
       "sentence": "The dentist has a big chair that goes back.",
       "sometimesNote": "Sometimes the chair is a different colour. That is okay.",
-      "scene": "big_chair"
+      "scene": "big_chair",
+      "kind": "describes"
     },
     {
       "id": "p4",
       "sentence": "The dentist counts my teeth. Then I can go home.",
       "sometimesNote": null,
-      "scene": "big_chair"
+      "scene": "big_chair",
+      "kind": "ends_well"
     }
-  ]
+  ],
+  "practice": {
+    "steps": [
+      { "id": "car", "label": "Go in the car", "pictogram": "step_car" },
+      { "id": "wait", "label": "Wait in the waiting room", "pictogram": "step_waiting" },
+      { "id": "teeth", "label": "The dentist counts my teeth", "pictogram": "step_dentist" },
+      { "id": "home", "label": "Go home", "pictogram": "step_home" }
+    ],
+    "sounds": [
+      { "sound": "dentist_drill", "label": "The little brush (it buzzes)" },
+      { "sound": "suction", "label": "The water straw (it slurps)" }
+    ],
+    "calmTools": ["headphones", "sunglasses", "squishy", "breathe", "hold_hand"]
+  }
 }
